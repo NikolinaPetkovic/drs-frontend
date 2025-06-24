@@ -1,22 +1,37 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import TextInput from "@/components/input/Input";
 import Button from "@/components/button/Button";
 import AuthLayout from "@/components/layout/Layout";
+import { login } from "@/services/authService";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const navigate = useNavigate(); 
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "admin" && password === "admin") {
-      console.log("Ulogovan kao admin");
-      navigate("/admin"); 
-    } else {
-      alert("Neispravni podaci");
+    setError("");
+
+    try {
+      const data = await login(username, password);
+
+      localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("user_id", data.user_id.toString());
+      localStorage.setItem("role", data.role);
+
+      if (data.role === "admin") {
+        navigate("/admin");
+      } else if (data.role === "coach") {
+        navigate("/coach");
+      } else {
+        setError("Nepoznata korisnička uloga.");
+      }
+    } catch (err: any) {
+      setError("Neispravni podaci");
     }
   };
 
@@ -24,15 +39,17 @@ export default function Login() {
     <AuthLayout>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Dobrodosli</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Dobrodošli</h2>
         </div>
 
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <TextInput
-          label="Korisnicko ime"
+          label="Korisničko ime"
           name="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Unesite korisnicko ime"
+          placeholder="Unesite korisničko ime"
         />
 
         <TextInput

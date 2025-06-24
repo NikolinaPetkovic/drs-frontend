@@ -1,22 +1,23 @@
+import { useEffect, useState } from "react";
+import { getBlockedUsers } from "@/services/userService";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import type { BlockedUser } from "@/types/user"; // ✅ import tipa
 
 export default function BlockedUsersPage() {
-  const blockedUsers = [
-    {
-      id: 1,
-      name: "Petar Petrović",
-      email: "petar@example.com",
-      username: "petar123",
-      reason: "Više od 3 odbijene objave",
-    },
-    {
-      id: 2,
-      name: "Mina Marković",
-      email: "mina@example.com",
-      username: "mina321",
-      reason: "Spam objave, 4 odbijene",
-    },
-  ];
+  const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]); // ✅ precizan tip
+
+  useEffect(() => {
+    const fetchBlocked = async () => {
+      try {
+        const data = await getBlockedUsers();
+        setBlockedUsers(data); // ✅ sad zna tačan tip
+      } catch (err) {
+        console.error("Greška pri dohvatanju blokiranih korisnika:", err);
+      }
+    };
+
+    fetchBlocked();
+  }, []);
 
   return (
     <div className="flex min-h-screen">
@@ -43,7 +44,9 @@ export default function BlockedUsersPage() {
             <tbody className="divide-y divide-gray-200">
               {blockedUsers.map((user) => (
                 <tr key={user.id}>
-                  <td className="px-6 py-4">{user.name}</td>
+                  <td className="px-6 py-4">
+                       {user.first_name} {user.last_name}
+                 </td>
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4">{user.username}</td>
                   <td className="px-6 py-4">{user.reason}</td>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import TextInput from "@/components/input/Input";
 import Button from "@/components/button/Button";
+import { createUser } from "@/services/userService";
 
 export default function CreateUserPage() {
   const [formData, setFormData] = useState({
@@ -20,10 +21,30 @@ export default function CreateUserPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("User data:", formData);
-  };
+ 
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await createUser({
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      address: formData.address,
+      city: formData.city,
+      country: formData.country,
+      phone: formData.phone,
+      email: formData.email,
+      username: formData.username,
+      password: formData.password,
+    });
+
+    alert("Korisnik uspešno dodat!");
+    console.log("Backend response:", response);
+  } catch (error: any) {
+    console.error("Greška:", error);
+    alert("Došlo je do greške prilikom dodavanja korisnika.");
+  }
+};
 
   return (
     <div className="flex min-h-screen">
