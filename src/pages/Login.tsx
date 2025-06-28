@@ -8,7 +8,6 @@ import { login } from "@/services/authService";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -27,6 +26,8 @@ export default function Login() {
         navigate("/admin");
       } else if (data.role === "coach") {
         navigate("/coach");
+      } else if (data.role === "user") {
+        navigate("/user");
       } else {
         setError("Nepoznata korisnička uloga.");
       }
@@ -60,21 +61,6 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Unesite lozinku"
         />
-
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="accent-blue-600"
-            />
-            Zapamti me
-          </label>
-          <a href="#" className="text-blue-600 hover:underline">
-            Zaboravljena lozinka?
-          </a>
-        </div>
 
         <Button type="submit">Sign In</Button>
       </form>
