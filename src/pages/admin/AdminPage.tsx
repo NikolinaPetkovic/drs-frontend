@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-
-type Post = {
-  id: number;
-  author: string;
-  content: string;
-  imageUrl?: string;
-};
+import {
+  getPendingPosts,
+  approvePost,
+  rejectPost,
+  type Post,
+} from "@/services/postService";
 
 type User = {
   id: number;
@@ -17,49 +16,79 @@ type User = {
 
 export default function AdminPage() {
   const [activeTab] = useState("main");
+  const [pendingPosts, setPendingPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await getPendingPosts();
+        setPendingPosts(data);
+      } catch (err) {
+        console.error("Greška pri dohvatanju objava:", err);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
       case "main":
-        const pendingPosts: Post[] = [
-          {
-            id: 1,
-            author: "Nikola Nikolić",
-            content: "Nova objava ",
-            imageUrl: "https://via.placeholder.com/400x200",
-          },
-          {
-            id: 2,
-            author: "Ivana Ilić",
-            content: "Divan dan",
-          },
-        ];
-
         return (
           <div>
             <h1 className="text-3xl font-bold mb-6">Odobravanje objava</h1>
             <div className="space-y-6">
               {pendingPosts.map((post) => (
                 <div key={post.id} className="p-4 bg-white rounded shadow border">
-                  <p className="font-semibold">{post.author}</p>
-                  <p className="mb-2">{post.content}</p>
-                  {post.imageUrl && (
+                  <p className="font-semibold">
+                    {post.user
+                      ? `${post.user.first_name} ${post.user.last_name}`
+                      : "Nepoznat korisnik"}
+                  </p>
+                  <p className="mb-2">{post.text}</p>
+                  {post.image && (
                     <img
-                      src={post.imageUrl}
+                      src={post.image}
                       alt="Post slika"
                       className="w-full rounded border mb-2"
                     />
                   )}
                   <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    <button
+                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                      onClick={async () => {
+                        try {
+                          await approvePost(post.id);
+                          setPendingPosts((prev) =>
+                            prev.filter((p) => p.id !== post.id)
+                          );
+                        } catch (err) {
+                          console.error("Greška pri odobravanju objave:", err);
+                        }
+                      }}
+                    >
                       Odobri
                     </button>
-                    <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                    <button
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      onClick={async () => {
+                        try {
+                          await rejectPost(post.id);
+                          setPendingPosts((prev) =>
+                            prev.filter((p) => p.id !== post.id)
+                          );
+                        } catch (err) {
+                          console.error("Greška pri odbijanju objave:", err);
+                        }
+                      }}
+                    >
                       Odbij
                     </button>
                   </div>
                 </div>
               ))}
+              {pendingPosts.length === 0 && (
+                <p className="text-gray-500 italic">Nema objava za odobravanje.</p>
+              )}
             </div>
           </div>
         );
@@ -83,31 +112,11 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold mb-6">Kreiranje korisnika</h1>
             <form className="space-y-4 max-w-md">
-              <input
-                type="text"
-                placeholder="Ime"
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Prezime"
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Korisničko ime"
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="password"
-                placeholder="Lozinka"
-                className="w-full px-4 py-2 border rounded"
-              />
+              <input type="text" placeholder="Ime" className="w-full px-4 py-2 border rounded" />
+              <input type="text" placeholder="Prezime" className="w-full px-4 py-2 border rounded" />
+              <input type="email" placeholder="Email" className="w-full px-4 py-2 border rounded" />
+              <input type="text" placeholder="Korisničko ime" className="w-full px-4 py-2 border rounded" />
+              <input type="password" placeholder="Lozinka" className="w-full px-4 py-2 border rounded" />
               <button
                 type="submit"
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

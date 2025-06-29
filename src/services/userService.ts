@@ -16,3 +16,8 @@ export const getBlockedUsers = async (): Promise<BlockedUser[]> => {
   const response = await api.get<BlockedUser[]>("/users/blocked");
   return response.data;
 };
+
+export const unblockUser = async (id: number): Promise<void> => {
+  await api.post(`/users/unblock/${id}`);
+};
+
