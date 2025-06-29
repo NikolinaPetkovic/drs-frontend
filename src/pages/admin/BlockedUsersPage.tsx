@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getBlockedUsers } from "@/services/userService";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import type { BlockedUser } from "@/types/user"; // ✅ import tipa
+import { unblockUser } from "@/services/userService";
+
 
 export default function BlockedUsersPage() {
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]); // ✅ precizan tip
@@ -47,13 +49,25 @@ export default function BlockedUsersPage() {
                   <td className="px-6 py-4">
                        {user.first_name} {user.last_name}
                  </td>
+
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4">{user.username}</td>
                   <td className="px-6 py-4">{user.reason}</td>
                   <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline">
-                      Odblokiraj
-                    </button>
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={async () => {
+                      try {
+                      await unblockUser(user.id);
+                      setBlockedUsers((prev) => prev.filter((u) => u.id !== user.id));
+                          } catch (err) {
+                            console.error("Greška pri odblokiranju korisnika:", err);
+                                        }
+  }}
+>
+  Odblokiraj
+</button>
+
                   </td>
                 </tr>
               ))}
