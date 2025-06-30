@@ -1,26 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getUserById, updateUser } from "@/services/userService";
+import type { User } from "@/types/user";
 
 export default function UserSettingsPage() {
-  const [form, setForm] = useState({
-    firstName: "Ivan",
-    lastName: "Ivanovic",
-    username: "iv123",
-    email: "ii@example.com",
-    address: "Ulica 12",
-    city: "Beograd",
-    country: "Srbija",
-    phone: "+381601234567",
-  });
+  const [form, setForm] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const userId = localStorage.getItem("user_id");
+      if (userId) {
+        try {
+          const user = await getUserById(userId);
+          setForm(user);
+        } catch (error) {
+          console.error("Greška pri dohvatanju korisnika:", error);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!form) return;
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev!, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Podaci za čuvanje:", form);
+    const userId = localStorage.getItem("user_id");
+    if (form && userId) {
+      try {
+        await updateUser(userId, form);
+        alert("Podaci su uspešno sačuvani.");
+      } catch (error) {
+        alert("Greška pri čuvanju podataka.");
+      }
+    }
   };
+
+  if (!form) return <p className="p-8">Učitavanje...</p>;
 
   return (
     <div className="p-8">
@@ -32,20 +52,20 @@ export default function UserSettingsPage() {
             <label className="block font-medium mb-1">Ime</label>
             <input
               type="text"
-              name="firstName"
-              value={form.firstName}
+              name="first_name"
+              value={form.first_name}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
             <label className="block font-medium mb-1">Prezime</label>
             <input
               type="text"
-              name="lastName"
-              value={form.lastName}
+              name="last_name"
+              value={form.last_name}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -55,7 +75,7 @@ export default function UserSettingsPage() {
               name="username"
               value={form.username}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -65,7 +85,7 @@ export default function UserSettingsPage() {
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -73,9 +93,9 @@ export default function UserSettingsPage() {
             <input
               type="text"
               name="address"
-              value={form.address}
+              value={form.address || ""}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -83,9 +103,9 @@ export default function UserSettingsPage() {
             <input
               type="text"
               name="city"
-              value={form.city}
+              value={form.city || ""}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -93,9 +113,9 @@ export default function UserSettingsPage() {
             <input
               type="text"
               name="country"
-              value={form.country}
+              value={form.country || ""}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
           <div>
@@ -103,16 +123,16 @@ export default function UserSettingsPage() {
             <input
               type="text"
               name="phone"
-              value={form.phone}
+              value={form.phone || ""}
               onChange={handleChange}
-              className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-3 border rounded"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="px-6 py-3 bg-green-500 text-white text-base rounded hover:bg-green-600"
+          className="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Sačuvaj promene
         </button>

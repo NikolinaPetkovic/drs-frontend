@@ -21,3 +21,8 @@ export const unblockUser = async (id: number): Promise<void> => {
   await api.post(`/users/unblock/${id}`);
 };
 
+
+export const updateUser = async (id: string, data: Partial<User>): Promise<User> => {
+  const response = await api.put<{ user: User }>(`/users/${id}`, data);
+  return response.data.user;
+};

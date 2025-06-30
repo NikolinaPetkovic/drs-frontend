@@ -1,17 +1,21 @@
-import { useState } from "react";
-
-type Friend = {
-  id: number;
-  fullName: string;
-  username: string;
-};
+import { useState, useEffect } from "react";
+import { getFriends, type Friend } from "@/services/friendService";
 
 export default function UserFriendsListPage() {
-  const [friends] = useState<Friend[]>([
-    { id: 1, fullName: "Ana Jovanović", username: "ana123" },
-    { id: 2, fullName: "Marko Petrović", username: "marko22" },
-    { id: 3, fullName: "Ivana Knežević", username: "ivana_k" },
-  ]);
+  const [friends, setFriends] = useState<Friend[]>([]);
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const data = await getFriends();
+        setFriends(data);
+      } catch (error) {
+        console.error("Greška pri dohvatanju prijatelja:", error);
+      }
+    };
+
+    fetchFriends();
+  }, []);
 
   return (
     <div className="p-8">
