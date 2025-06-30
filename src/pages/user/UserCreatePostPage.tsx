@@ -1,4 +1,6 @@
 import { useState, type ChangeEvent } from "react";
+import { createPost } from "@/services/postService";
+
 
 export default function UserCreatePostPage() {
   const [text, setText] = useState("");
@@ -13,21 +15,32 @@ export default function UserCreatePostPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!text && !image) {
-      alert("Molimo unesite tekst ili sliku.");
-      return;
-    }
+  if (!text && !image) {
+    alert("Molimo unesite tekst ili sliku.");
+    return;
+  }
 
-    console.log("Tekst:", text);
-    console.log("Slika:", image);
+  const formData = new FormData();
+  formData.append("text", text);
+  if (image) {
+    formData.append("image", image);
+  }
 
+  try {
+    await createPost(formData);
+    alert("Objava uspešno kreirana!");
     setText("");
     setImage(null);
     setPreviewUrl(null);
-  };
+  } catch (error) {
+    console.error("Greška pri kreiranju objave:", error);
+    alert("Došlo je do greške prilikom slanja objave.");
+  }
+};
+
 
   return (
     <div className="p-8">
