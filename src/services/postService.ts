@@ -6,7 +6,7 @@ export type Post = {
   user_id: number;
   created_at: string;
   status: string;
-  image?: string;
+  image: string | null;
   user?: {
     first_name: string;
     last_name: string;
