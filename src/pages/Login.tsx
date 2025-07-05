@@ -8,12 +8,19 @@ import { login } from "@/services/authService";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  const [usernameError, setUsernameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+
+    setUsernameError(false);
+    setPasswordError(false);
+    setErrorMessage("");
 
     try {
       const data = await login(username, password);
@@ -24,15 +31,17 @@ export default function Login() {
 
       if (data.role === "admin") {
         navigate("/admin");
-      } else if (data.role === "coach") {
-        navigate("/coach");
       } else if (data.role === "user") {
         navigate("/user");
       } else {
-        setError("Nepoznata korisnička uloga.");
+        setErrorMessage("Nepoznata korisnička uloga.");
+        setUsernameError(true);
+        setPasswordError(true);
       }
     } catch (err: any) {
-      setError("Neispravni podaci");
+      setUsernameError(true);
+      setPasswordError(true);
+      setErrorMessage("Neispravno korisničko ime ili lozinka.");
     }
   };
 
@@ -43,14 +52,14 @@ export default function Login() {
           <h2 className="text-3xl font-bold text-gray-900">Dobrodošli</h2>
         </div>
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
-
         <TextInput
           label="Korisničko ime"
           name="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Unesite korisničko ime"
+          error={usernameError}
+          errorMessage={usernameError ? errorMessage : ""}
         />
 
         <TextInput
@@ -60,6 +69,8 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Unesite lozinku"
+          error={passwordError}
+          errorMessage={passwordError ? errorMessage : ""}
         />
 
         <Button type="submit">Sign In</Button>
