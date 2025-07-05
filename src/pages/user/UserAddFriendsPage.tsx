@@ -5,26 +5,63 @@ type User = {
   id: number;
   username: string;
   fullName: string;
+  email: string;
+  address: string;
+  city: string;
+  country: string;
 };
 
 export default function UserAddFriendsPage() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [addedFriends, setAddedFriends] = useState<number[]>([]);
 
   const mockUsers: User[] = [
-    { id: 1, username: "ana123", fullName: "Ana Jovanović" },
-    { id: 2, username: "marko22", fullName: "Marko Petrović" },
-    { id: 3, username: "ivana_k", fullName: "Ivana Knežević" },
+    {
+      id: 1,
+      username: "ana123",
+      fullName: "Ana Jovanović",
+      email: "ana@example.com",
+      address: "Nemanjina 5",
+      city: "Beograd",
+      country: "Srbija",
+    },
+    {
+      id: 2,
+      username: "marko22",
+      fullName: "Marko Petrović",
+      email: "marko@example.com",
+      address: "Bulevar Oslobođenja 101",
+      city: "Novi Sad",
+      country: "Srbija",
+    },
+    {
+      id: 3,
+      username: "ivana_k",
+      fullName: "Ivana Knežević",
+      email: "ivana.k@example.com",
+      address: "Cara Dušana 42",
+      city: "Niš",
+      country: "Srbija",
+    },
   ];
 
+  const usersToDisplay = filteredUsers.length > 0 || query ? filteredUsers : mockUsers;
+
   const handleSearch = () => {
-    const filtered = mockUsers.filter(
-      (user) =>
-        user.fullName.toLowerCase().includes(query.toLowerCase()) ||
-        user.username.toLowerCase().includes(query.toLowerCase())
-    );
-    setResults(filtered);
+    const filtered = mockUsers.filter((user) => {
+      const searchTerm = query.toLowerCase();
+      return (
+        user.fullName.toLowerCase().includes(searchTerm) ||
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.address.toLowerCase().includes(searchTerm) ||
+        user.city.toLowerCase().includes(searchTerm) ||
+        user.country.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    setFilteredUsers(filtered);
   };
 
   const handleAddFriend = (id: number) => {
@@ -34,12 +71,13 @@ export default function UserAddFriendsPage() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Dodaj prijatelja</h1>
+
       <div className="flex gap-4 mb-8 max-w-2xl">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Pretraži po imenu ili korisničkom imenu..."
+          placeholder="Pretraži"
           className="flex-1 px-4 py-3 text-base border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
         <button
@@ -50,9 +88,10 @@ export default function UserAddFriendsPage() {
           Pretraži
         </button>
       </div>
+
       <div className="max-w-2xl space-y-4">
-        {results.length > 0 ? (
-          results.map((user) => (
+        {usersToDisplay.length > 0 ? (
+          usersToDisplay.map((user) => (
             <div
               key={user.id}
               className="flex justify-between items-center p-4 bg-white border rounded shadow-sm"
@@ -60,6 +99,8 @@ export default function UserAddFriendsPage() {
               <div>
                 <p className="text-lg font-medium">{user.fullName}</p>
                 <p className="text-sm text-gray-500">@{user.username}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
+                <p className="text-sm text-gray-500">{user.address}, {user.city}, {user.country}</p>
               </div>
               <button
                 onClick={() => handleAddFriend(user.id)}

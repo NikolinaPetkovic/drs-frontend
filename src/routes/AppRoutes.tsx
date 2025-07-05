@@ -13,25 +13,32 @@ import UserFriendsListPage from "@/pages/user/UserFriendsListPage";
 import UserSettingsPage from "@/pages/user/UserSettingsPage";
 import UserLogout from "@/pages/user/UserLogout";
 import UserLayout from "@/components/layout/UserLayout";
+import UserPostsPage from "@/pages/user/UserPostsPage";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-       <Route path="/admin" element={<AdminDashboard />} />
-       <Route path="/admin/info" element={<AdminInfoPage />} />
-        <Route path="/admin/create-user" element={<CreateUserPage />} />
-        <Route path="/admin/blocked-users" element={<BlockedUsersPage />} />
-        <Route path="/admin/logout" element={<LogoutPage />} />
-        <Route path="/user" element={<UserLayout />}>
-          <Route path="create-post" element={<UserCreatePostPage />} />
-          <Route path="requests" element={<UserRequestsPage />} />
-          <Route path="add-friends" element={<UserAddFriendsPage />} />
-          <Route path="friends-posts" element={<UserFriendsPostsPage />} />
-          <Route path="friends" element={<UserFriendsListPage />} />
-          <Route path="settings" element={<UserSettingsPage />} />
-          <Route path="logout" element={<UserLogout />} />
-        </Route>
+
+      {/* Admin rute */}
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/info" element={<AdminInfoPage />} />
+      <Route path="/admin/create-user" element={<CreateUserPage />} />
+      <Route path="/admin/blocked-users" element={<BlockedUsersPage />} />
+      <Route path="/admin/logout" element={<LogoutPage />} />
+
+      {/* User rute sa layout-om */}
+      <Route path="/user" element={<UserLayout />}>
+        <Route index element={<UserFriendsPostsPage />} /> {/* Ovo je početna stranica za /user */}
+        <Route path="create-post" element={<UserCreatePostPage />} />
+        <Route path="requests" element={<UserRequestsPage />} />
+        <Route path="add-friends" element={<UserAddFriendsPage />} />
+        <Route path="friends-posts" element={<UserFriendsPostsPage />} />
+        <Route path="my-posts" element={<UserPostsPage />} />
+        <Route path="friends" element={<UserFriendsListPage />} />
+        <Route path="settings" element={<UserSettingsPage />} />
+        <Route path="logout" element={<UserLogout />} />
+      </Route>
     </Routes>
   );
 }

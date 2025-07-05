@@ -1,5 +1,6 @@
 import React from "react";
 
+
 export interface TextInputProps {
   label: string;
   name: string;
@@ -10,6 +11,8 @@ export interface TextInputProps {
   required?: boolean;
   disabled?: boolean;
   autoComplete?: string;
+  error?: boolean;
+  errorMessage?: string;
 }
 
 export default function TextInput({
@@ -22,6 +25,8 @@ export default function TextInput({
   required = false,
   disabled = false,
   autoComplete = "off",
+  error = false,
+  errorMessage = "",
 }: TextInputProps) {
   return (
     <div className="mb-4">
@@ -38,8 +43,15 @@ export default function TextInput({
         required={required}
         disabled={disabled}
         autoComplete={autoComplete}
-        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+        className={`w-full rounded-md px-4 py-2 focus:outline-none focus:ring-2 disabled:bg-gray-100 ${
+          error
+            ? "border border-red-500 focus:ring-red-500"
+            : "border border-gray-300 focus:ring-blue-500"
+        }`}
       />
+      {error && errorMessage && (
+        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+      )}
     </div>
   );
 }
