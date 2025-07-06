@@ -30,14 +30,14 @@ export default function AppRoutes() {
       {/* User rute sa layout-om */}
       <Route path="/user" element={<UserLayout />}>
         <Route index element={<UserFriendsPostsPage />} /> {/* Ovo je početna stranica za /user */}
-        <Route path="create-post" element={<UserCreatePostPage />} />
-        <Route path="requests" element={<UserRequestsPage />} />
-        <Route path="add-friends" element={<UserAddFriendsPage />} />
-        <Route path="friends-posts" element={<UserFriendsPostsPage />} />
-        <Route path="my-posts" element={<UserPostsPage />} />
-        <Route path="friends" element={<UserFriendsListPage />} />
-        <Route path="settings" element={<UserSettingsPage />} />
-        <Route path="logout" element={<UserLogout />} />
+        <Route path="/user/create-post" element={<UserCreatePostPage />} />
+        <Route path="/user/requests" element={<UserRequestsPage />} />
+        <Route path="/user/add-friends" element={<UserAddFriendsPage />} />
+        <Route path="/user/friends-posts" element={<UserFriendsPostsPage />} />
+        <Route path="/user/my-posts" element={<UserPostsPage />} />
+        <Route path="/user/friends" element={<UserFriendsListPage />} />
+        <Route path="/user/settings" element={<UserSettingsPage />} />
+        <Route path="/user/logout" element={<UserLogout />} />
       </Route>
     </Routes>
   );

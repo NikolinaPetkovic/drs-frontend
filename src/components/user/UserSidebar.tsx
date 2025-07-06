@@ -18,13 +18,14 @@ interface SidebarTab {
 }
 
 const tabs: SidebarTab[] = [
-   { key: "feed", label: "Objave", icon: <Newspaper size={18} />, path: "/user/friends-posts" },
+  { key: "feed", label: "Objave", icon: <Newspaper size={18} />, path: "/user/friends-posts" },
   { key: "requests", label: "Zahtevi", icon: <MailQuestion size={18} />, path: "/user/requests" },
   { key: "add", label: "Dodaj", icon: <UserPlus size={18} />, path: "/user/add-friends" },
   { key: "friends", label: "Prijatelji", icon: <Users size={18} />, path: "/user/friends" },
-   { key: "create-post", label: "Objavi", icon: <FilePlus2 size={18} />, path: "/user/create-post" },
-  { key: "my-posts", label: "Moje objave", icon: <Newspaper size={18} />, path: "/user/my-posts" }, 
+  { key: "create-post", label: "Objavi", icon: <FilePlus2 size={18} />, path: "/user/create-post" },
+  { key: "my-posts", label: "Moje objave", icon: <Newspaper size={18} />, path: "/user/my-posts" },
   { key: "settings", label: "Podešavanja", icon: <Settings size={18} />, path: "/user/settings" },
+  { key: "logout", label: "Odjava", icon: <LogOut size={18} />, path: "/user/logout" }, // 👈 deo tabs
 ];
 
 export default function UserSidebar() {
@@ -36,27 +37,24 @@ export default function UserSidebar() {
       <nav className="flex flex-col gap-4">
         {tabs.map(({ key, label, icon, path }) => {
           const isActive = location.pathname === path;
+          const baseStyle = "flex items-center gap-2 text-left w-full transition-colors";
+
+          const activeStyle =
+            isActive && key === "logout"
+              ? "text-red-500 font-semibold"
+              : isActive
+              ? "text-blue-400 font-semibold"
+              : key === "logout"
+              ? "hover:text-red-500"
+              : "hover:text-blue-400";
+
           return (
-            <Link
-              key={key}
-              to={path}
-              className={`flex items-center gap-2 text-left w-full transition-colors ${
-                isActive ? "text-blue-400 font-semibold" : "hover:text-blue-400"
-              }`}
-            >
+            <Link key={key} to={path} className={`${baseStyle} ${activeStyle}`}>
               {icon}
               {label}
             </Link>
           );
         })}
-
-        <Link
-          to="/user/logout"
-          className="flex items-center gap-2 text-left w-full hover:text-red-500 transition-colors"
-        >
-          <LogOut size={18} />
-          Odjava
-        </Link>
       </nav>
     </aside>
   );
