@@ -41,7 +41,9 @@ export default function UserFriendsPostsPage() {
             <div key={post.id} className="p-6 bg-white rounded shadow border">
               <div className="mb-2">
                 <p className="text-lg font-semibold">
-                  {post.user ? `${post.user.first_name} ${post.user.last_name}` : "Nepoznat korisnik"}
+                  {post.user
+                    ? `${post.user.first_name} ${post.user.last_name}`
+                    : "Nepoznat korisnik"}
                 </p>
                 <p className="text-sm text-gray-500">
                   {new Date(post.created_at).toLocaleString("sr-RS")}
@@ -50,7 +52,7 @@ export default function UserFriendsPostsPage() {
               <p className="text-base mb-3">{post.text}</p>
               {post.image_url && (
                 <img
-                  src={post.image_url}
+                  src={`http://localhost:5000${post.image_url}`}
                   alt="Post slika"
                   className="w-full rounded border"
                 />

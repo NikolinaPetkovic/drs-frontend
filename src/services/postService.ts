@@ -7,6 +7,7 @@ export type Post = {
   created_at: string;
   status: string;
   image: string | null;
+  rejection_count: number;
   user?: {
     first_name: string;
     last_name: string;
@@ -34,11 +35,34 @@ export const createPost = async (formData: FormData) => {
   });
 };
 
+export const updatePost = async (id: number, formData: FormData) => {
+  await api.put(`/posts/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 export const getFriendPosts = async (): Promise<Post[]> => {
   const response = await api.get<Post[]>("/posts/friends");
   return response.data;
 };
 
+export const getMyPosts = async (): Promise<Post[]> => {
+  const response = await api.get<Post[]>("/posts/my");
+  return response.data;
+};
 
+export const getMyApprovedPosts = async (): Promise<Post[]> => {
+  const response = await api.get<Post[]>("/posts/my/approved");
+  return response.data;
+};
 
+export const getMyRejectedPosts = async (): Promise<Post[]> => {
+  const response = await api.get<Post[]>("/posts/my/rejected");
+  return response.data;
+};
 
+export const deletePost = async (id: number): Promise<void> => {
+  await api.delete(`/posts/${id}`);
+};

@@ -26,3 +26,18 @@ export const updateUser = async (id: string, data: Partial<User>): Promise<User>
   const response = await api.put<{ user: User }>(`/users/${id}`, data);
   return response.data.user;
 };
+
+export const getAllUsers = async (): Promise<User[]> => {
+  const response = await api.get<{ user: User }[]>("/users/");
+  return response.data.map((item) => item.user);
+};
+
+export const searchUsers = async (query: string): Promise<User[]> => {
+  const response = await api.get<User[]>(`/users/search?q=${query}`);
+  return response.data;
+};
+
+export const sendFriendRequest = async (receiverId: number): Promise<void> => {
+  await api.post(`/users/friend-request/${receiverId}`);
+};
+

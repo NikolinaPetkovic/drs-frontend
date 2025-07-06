@@ -1,60 +1,39 @@
 import { useEffect, useState } from "react";
+import {
+  getMyApprovedPosts,
+  getMyRejectedPosts,
+  deletePost,
+  updatePost,
+  type Post,
+} from "@/services/postService";
 
 type PostStatus = "draft" | "pending" | "approved" | "rejected";
-
-type Post = {
-  id: number;
-  user_id: number;
-  text?: string;
-  image_url?: string;
-  created_at: string;
-  status: PostStatus;
-  rejection_count: number;
-};
 
 export default function UserPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [editModal, setEditModal] = useState<Post | null>(null);
   const [deleteModalId, setDeleteModalId] = useState<number | null>(null);
-
   const [editText, setEditText] = useState("");
-  const [editImage, setEditImage] = useState("");
+  const [editImage, setEditImage] = useState<string | File>("");
 
   useEffect(() => {
-    const mockPosts: Post[] = [
-      {
-        id: 1,
-        user_id: 10,
-        text: "Danas sam trenirao naporno!",
-        image_url: "https://via.placeholder.com/600x300",
-        created_at: "2025-07-04T10:30:00Z",
-        status: "approved",
-        rejection_count: 0,
-      },
-      {
-        id: 2,
-        user_id: 10,
-        text: "Još uvek čekam odobrenje za ovu objavu...",
-        created_at: "2025-07-02T15:15:00Z",
-        status: "pending",
-        rejection_count: 0,
-      },
-      {
-        id: 3,
-        user_id: 10,
-        text: "Nažalost, ova objava je odbijena tri puta.",
-        image_url: "https://via.placeholder.com/600x250",
-        created_at: "2025-06-28T09:00:00Z",
-        status: "rejected",
-        rejection_count: 3,
-      },
-    ];
+    const fetchPosts = async () => {
+      try {
+        const [approved, rejected] = await Promise.all([
+          getMyApprovedPosts(),
+          getMyRejectedPosts(),
+        ]);
+        const all = [...approved, ...rejected];
+        const sorted = all.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        setPosts(sorted);
+      } catch (err) {
+        console.error("Greška prilikom dohvatanja objava:", err);
+      }
+    };
 
-    const sorted = mockPosts.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-
-    setPosts(sorted);
+    fetchPosts();
   }, []);
 
   const getStatusColor = (status: PostStatus) => {
@@ -73,22 +52,48 @@ export default function UserPostsPage() {
   const handleEdit = (post: Post) => {
     setEditModal(post);
     setEditText(post.text || "");
-    setEditImage(post.image_url || "");
+    setEditImage(post.image || "");
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editModal) {
-      const updatedPosts = posts.map((p) =>
-        p.id === editModal.id ? { ...p, text: editText, image_url: editImage } : p
-      );
-      setPosts(updatedPosts);
-      setEditModal(null);
+      try {
+        const formData = new FormData();
+        formData.append("text", editText);
+        if (editImage instanceof File) {
+          formData.append("image", editImage);
+        }
+
+        await updatePost(editModal.id, formData);
+
+        const updatedPosts = posts.map((p) =>
+          p.id === editModal.id
+            ? {
+                ...p,
+                text: editText,
+                image:
+                  editImage instanceof File
+                    ? URL.createObjectURL(editImage)
+                    : editImage,
+              }
+            : p
+        );
+        setPosts(updatedPosts);
+        setEditModal(null);
+      } catch (error) {
+        console.error("Greška prilikom izmene objave:", error);
+      }
     }
   };
 
-  const handleDelete = (id: number) => {
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    setDeleteModalId(null);
+  const handleDelete = async (id: number) => {
+    try {
+      await deletePost(id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      setDeleteModalId(null);
+    } catch (err) {
+      console.error("Greška prilikom brisanja:", err);
+    }
   };
 
   return (
@@ -103,9 +108,13 @@ export default function UserPostsPage() {
                 <p className="text-sm text-gray-500">
                   {new Date(post.created_at).toLocaleString("sr-RS")}
                 </p>
-                <span className={`text-sm font-medium ${getStatusColor(post.status)}`}>
+                <span
+                  className={`text-sm font-medium ${getStatusColor(
+                    post.status as PostStatus
+                  )}`}
+                >
                   {post.status === "rejected"
-                    ? `Odbijeno (${post.rejection_count})`
+                    ? `Odbijeno (${post.rejection_count || 0})`
                     : post.status === "approved"
                     ? "Odobreno"
                     : post.status === "pending"
@@ -114,9 +123,9 @@ export default function UserPostsPage() {
                 </span>
               </div>
               <p className="text-base mb-3">{post.text}</p>
-              {post.image_url && (
+              {post.image && (
                 <img
-                  src={post.image_url}
+                  src={post.image}
                   alt="Post slika"
                   className="w-full rounded border mb-3"
                 />
@@ -139,60 +148,66 @@ export default function UserPostsPage() {
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-base">Trenutno nemate nijednu objavu.</p>
+        <p className="text-gray-500 text-base">
+          Trenutno nemate nijednu objavu.
+        </p>
       )}
 
-   {editModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded shadow w-full max-w-lg">
-      <h2 className="text-xl font-bold mb-4">Izmena objave</h2>
+      {editModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">Izmena objave</h2>
 
-      <label className="block mb-2 text-sm">Tekst</label>
-      <textarea
-        value={editText}
-        onChange={(e) => setEditText(e.target.value)}
-        className="w-full border p-2 mb-4 rounded"
-        rows={4}
-      />
+            <label className="block mb-2 text-sm">Tekst</label>
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="w-full border p-2 mb-4 rounded"
+              rows={4}
+            />
 
-      <label className="block mb-2 text-sm">Slika (opcionalno)</label>
-      {editImage && (
-        <img
-          src={editImage}
-          alt="Trenutna slika"
-          className="w-full h-auto mb-4 rounded border"
-        />
+            <label className="block mb-2 text-sm">Slika (opcionalno)</label>
+            {editImage && (
+              <img
+                src={
+                  editImage instanceof File
+                    ? URL.createObjectURL(editImage)
+                    : editImage
+                }
+                alt="Trenutna slika"
+                className="w-full h-auto mb-4 rounded border"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setEditImage(file);
+                }
+              }}
+              className="mb-4"
+            />
+
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setEditModal(null)}
+                className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+              >
+                Otkaži
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Sačuvaj
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setEditImage(imageUrl);
-          }
-        }}
-        className="mb-4"
-      />
 
-      <div className="flex justify-end gap-4">
-        <button
-          onClick={() => setEditModal(null)}
-          className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
-        >
-          Otkaži
-        </button>
-        <button
-          onClick={handleSaveEdit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Sačuvaj
-        </button>
-      </div>
-    </div>
-  </div>
-)}
       {deleteModalId !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow w-full max-w-md">
