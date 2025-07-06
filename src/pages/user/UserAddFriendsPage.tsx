@@ -1,71 +1,98 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-
-type User = {
-  id: number;
-  username: string;
-  fullName: string;
-  email: string;
-  address: string;
-  city: string;
-  country: string;
-};
+import {
+  getAllUsers,
+  searchUsers,
+  sendFriendRequest,
+  getBlockedUsers,
+} from "@/services/userService";
+import type { User } from "@/types/user";
+import { getToken } from "@/services/authService";
 
 export default function UserAddFriendsPage() {
   const [query, setQuery] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [addedFriends, setAddedFriends] = useState<number[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [blockedUserIds, setBlockedUserIds] = useState<number[]>([]);
 
-  const mockUsers: User[] = [
-    {
-      id: 1,
-      username: "ana123",
-      fullName: "Ana Jovanović",
-      email: "ana@example.com",
-      address: "Nemanjina 5",
-      city: "Beograd",
-      country: "Srbija",
-    },
-    {
-      id: 2,
-      username: "marko22",
-      fullName: "Marko Petrović",
-      email: "marko@example.com",
-      address: "Bulevar Oslobođenja 101",
-      city: "Novi Sad",
-      country: "Srbija",
-    },
-    {
-      id: 3,
-      username: "ivana_k",
-      fullName: "Ivana Knežević",
-      email: "ivana.k@example.com",
-      address: "Cara Dušana 42",
-      city: "Niš",
-      country: "Srbija",
-    },
-  ];
+  // ⬇️ Učitaj ID ulogovanog korisnika iz JWT tokena
+  useEffect(() => {
+    const fetchCurrentUser = () => {
+      try {
+        const token = getToken();
+        if (!token) return;
 
-  const usersToDisplay = filteredUsers.length > 0 || query ? filteredUsers : mockUsers;
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setCurrentUserId(payload.sub || payload.id);
+      } catch (err) {
+        console.error("Greška pri čitanju tokena:", err);
+      }
+    };
 
-  const handleSearch = () => {
-    const filtered = mockUsers.filter((user) => {
-      const searchTerm = query.toLowerCase();
-      return (
-        user.fullName.toLowerCase().includes(searchTerm) ||
-        user.username.toLowerCase().includes(searchTerm) ||
-        user.email.toLowerCase().includes(searchTerm) ||
-        user.address.toLowerCase().includes(searchTerm) ||
-        user.city.toLowerCase().includes(searchTerm) ||
-        user.country.toLowerCase().includes(searchTerm)
+    fetchCurrentUser();
+  }, []);
+
+  // ⬇️ Učitaj sve korisnike i blokirane korisnike (tek kada znamo currentUserId)
+  useEffect(() => {
+    if (currentUserId === null) return;
+
+    const fetchUsers = async () => {
+      try {
+        const [users, blocked] = await Promise.all([
+          getAllUsers(),
+          getBlockedUsers(),
+        ]);
+
+        const blockedIds = blocked.map((user) => user.id);
+        setBlockedUserIds(blockedIds);
+
+        const visibleUsers = users.filter(
+          (user) =>
+            user.role !== "admin" &&
+            user.id !== currentUserId &&
+            !blockedIds.includes(user.id)
+        );
+
+        setFilteredUsers(visibleUsers);
+      } catch (error) {
+        console.error("Greška pri dohvatanju korisnika:", error);
+      }
+    };
+
+    fetchUsers();
+  }, [currentUserId]);
+
+  // ⬇️ Pretraga korisnika
+  const handleSearch = async () => {
+    if (currentUserId === null) return;
+
+    try {
+      const users = query.trim()
+        ? await searchUsers(query)
+        : await getAllUsers();
+
+      const visible = users.filter(
+        (user) =>
+          user.role !== "admin" &&
+          user.id !== currentUserId &&
+          !blockedUserIds.includes(user.id)
       );
-    });
 
-    setFilteredUsers(filtered);
+      setFilteredUsers(visible);
+    } catch (error) {
+      console.error("Greška pri pretrazi:", error);
+    }
   };
 
-  const handleAddFriend = (id: number) => {
-    setAddedFriends((prev) => [...prev, id]);
+  // ⬇️ Slanje friend request-a
+  const handleAddFriend = async (id: number) => {
+    try {
+      await sendFriendRequest(id);
+      setAddedFriends((prev) => [...prev, id]);
+    } catch (error) {
+      console.error("Greška pri slanju zahteva:", error);
+    }
   };
 
   return (
@@ -90,17 +117,21 @@ export default function UserAddFriendsPage() {
       </div>
 
       <div className="max-w-2xl space-y-4">
-        {usersToDisplay.length > 0 ? (
-          usersToDisplay.map((user) => (
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
             <div
               key={user.id}
               className="flex justify-between items-center p-4 bg-white border rounded shadow-sm"
             >
               <div>
-                <p className="text-lg font-medium">{user.fullName}</p>
+                <p className="text-lg font-medium">
+                  {user.first_name} {user.last_name}
+                </p>
                 <p className="text-sm text-gray-500">@{user.username}</p>
                 <p className="text-sm text-gray-500">{user.email}</p>
-                <p className="text-sm text-gray-500">{user.address}, {user.city}, {user.country}</p>
+                <p className="text-sm text-gray-500">
+                  {user.address}, {user.city}, {user.country}
+                </p>
               </div>
               <button
                 onClick={() => handleAddFriend(user.id)}

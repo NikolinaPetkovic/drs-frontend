@@ -45,10 +45,11 @@ export default function AdminPage() {
           image: null, // ako backend ne šalje sliku
           created_at: data.created_at,
           user_id: data.user_id,
-          status: "pending", // ili data.status ako ga backend šalje
+          status: "pending",
+          rejection_count: 0, // obavezno zbog tipa
           user: {
             id: data.user_id,
-            first_name: "Nepoznato", // opcionalno zameni stvarnim podacima ako ih backend šalje
+            first_name: "Nepoznato",
             last_name: "",
           },
         },
