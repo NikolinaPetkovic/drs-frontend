@@ -18,11 +18,12 @@ interface SidebarTab {
 }
 
 const tabs: SidebarTab[] = [
-  { key: "create-post", label: "Objavi", icon: <FilePlus2 size={18} />, path: "/user/create-post" },
+   { key: "feed", label: "Objave", icon: <Newspaper size={18} />, path: "/user/friends-posts" },
   { key: "requests", label: "Zahtevi", icon: <MailQuestion size={18} />, path: "/user/requests" },
   { key: "add", label: "Dodaj", icon: <UserPlus size={18} />, path: "/user/add-friends" },
-  { key: "feed", label: "Objave", icon: <Newspaper size={18} />, path: "/user/friends-posts" },
   { key: "friends", label: "Prijatelji", icon: <Users size={18} />, path: "/user/friends" },
+   { key: "create-post", label: "Objavi", icon: <FilePlus2 size={18} />, path: "/user/create-post" },
+  { key: "my-posts", label: "Moje objave", icon: <Newspaper size={18} />, path: "/user/my-posts" }, 
   { key: "settings", label: "Podešavanja", icon: <Settings size={18} />, path: "/user/settings" },
 ];
 

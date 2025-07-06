@@ -3,10 +3,9 @@ import { getAllFriendRequests, respondToFriendRequest } from "@/services/friendS
 
 type Request = {
   id: number;
-  user1_id: number;
-  user2_id: number;
-  status: string;
-  created_at: string;
+  username: string;
+  first_name: string;
+  last_name: string;
 };
 
 export default function UserRequestsPage() {
@@ -16,8 +15,7 @@ export default function UserRequestsPage() {
     const fetchRequests = async () => {
       try {
         const data = await getAllFriendRequests();
-        const pending = data.filter((req: Request) => req.status === "pending");
-        setRequests(pending);
+        setRequests(data);
       } catch (err) {
         console.error("Greška pri dohvaćanju zahteva:", err);
       }
@@ -53,8 +51,8 @@ export default function UserRequestsPage() {
           {requests.map((req) => (
             <li key={req.id} className="p-4 bg-white border rounded shadow-sm flex justify-between items-center">
               <div>
-                <p className="text-lg font-medium">Korisnik ID: {req.user1_id}</p>
-                <p className="text-sm text-gray-500">Status: {req.status}</p>
+                <p className="text-lg font-medium">{req.first_name} {req.last_name}</p>
+                <p className="text-sm text-gray-500">@{req.username}</p>
               </div>
               <div className="flex gap-3">
                 <button onClick={() => handleAccept(req.id)} className="px-4 py-2 text-base bg-green-500 text-white rounded hover:bg-green-600">Prihvati</button>

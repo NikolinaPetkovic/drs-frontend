@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { getBlockedUsers } from "@/services/userService";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import type { BlockedUser } from "@/types/user"; // ✅ import tipa
+import type { BlockedUser } from "@/types/user";
 import { unblockUser } from "@/services/userService";
 
 
 export default function BlockedUsersPage() {
-  const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]); // ✅ precizan tip
+  const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
 
   useEffect(() => {
     const fetchBlocked = async () => {
       try {
         const data = await getBlockedUsers();
-        setBlockedUsers(data); // ✅ sad zna tačan tip
+        setBlockedUsers(data); 
       } catch (err) {
         console.error("Greška pri dohvatanju blokiranih korisnika:", err);
       }
@@ -39,7 +39,6 @@ export default function BlockedUsersPage() {
                 <th className="px-6 py-3 text-left font-medium text-gray-700">Ime</th>
                 <th className="px-6 py-3 text-left font-medium text-gray-700">Email</th>
                 <th className="px-6 py-3 text-left font-medium text-gray-700">Korisničko ime</th>
-                <th className="px-6 py-3 text-left font-medium text-gray-700">Razlog</th>
                 <th className="px-6 py-3 text-left font-medium text-gray-700">Akcija</th>
               </tr>
             </thead>
@@ -52,7 +51,6 @@ export default function BlockedUsersPage() {
 
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4">{user.username}</td>
-                  <td className="px-6 py-4">{user.reason}</td>
                   <td className="px-6 py-4">
                     <button
                       className="text-blue-600 hover:underline"
@@ -63,10 +61,10 @@ export default function BlockedUsersPage() {
                           } catch (err) {
                             console.error("Greška pri odblokiranju korisnika:", err);
                                         }
-  }}
->
-  Odblokiraj
-</button>
+                }}
+              >
+                Odblokiraj
+              </button>
 
                   </td>
                 </tr>

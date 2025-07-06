@@ -17,6 +17,11 @@ export default function UserFriendsListPage() {
     fetchFriends();
   }, []);
 
+  const handleDelete = (friendId: number) => {
+    console.log("Obriši prijatelja sa ID:", friendId);
+    setFriends((prev) => prev.filter((f) => f.id !== friendId));
+  };
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Prijatelji</h1>
@@ -32,6 +37,13 @@ export default function UserFriendsListPage() {
                 <p className="text-lg font-medium">{friend.fullName}</p>
                 <p className="text-sm text-gray-500">@{friend.username}</p>
               </div>
+
+              <button
+                onClick={() => handleDelete(friend.id)}
+                className="ml-4 px-4 py-1 border text-sm rounded-md hover:bg-red-100 border-red-500 text-red-500"
+              >
+                Obriši
+              </button>
             </li>
           ))}
         </ul>

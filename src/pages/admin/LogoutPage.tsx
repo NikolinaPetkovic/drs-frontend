@@ -5,7 +5,9 @@ export default function LogoutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // ovde može ići logika za čišćenje tokena, korisničkih podataka itd.
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("role");
     navigate("/");
   }, [navigate]);
 

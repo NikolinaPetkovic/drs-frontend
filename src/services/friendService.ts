@@ -1,11 +1,11 @@
 import api from "./api";
 
-export type FriendRequest = {
+// Tip za pending friend request sa korisničkim informacijama
+export type IncomingFriendRequest = {
   id: number;
-  user1_id: number;
-  user2_id: number;
-  status: string;
-  created_at: string;
+  username: string;
+  first_name: string;
+  last_name: string;
 };
 
 export type Friend = {
@@ -14,17 +14,18 @@ export type Friend = {
   username: string;
 };
 
-export const getAllFriendRequests = async (): Promise<FriendRequest[]> => {
-  const response = await api.get<{ friendship: FriendRequest }[]>("/friendships");
-  return response.data.map((item) => item.friendship);
+// Dohvatanje svih friend requestova sa korisničkim informacijama
+export const getAllFriendRequests = async (): Promise<IncomingFriendRequest[]> => {
+  const response = await api.get<IncomingFriendRequest[]>("/friendships/friend-requests");
+  return response.data;
 };
 
-
+// Odgovor na zahtev (prihvati ili odbij)
 export const respondToFriendRequest = async (requestId: number, accept: boolean) => {
   return api.post(`/friendships/friend-request/${requestId}/respond`, { accept });
-
 };
 
+// Lista prijatelja ulogovanog korisnika
 export const getFriends = async (): Promise<Friend[]> => {
   const response = await api.get<Friend[]>("/friendships/friends");
   return response.data;

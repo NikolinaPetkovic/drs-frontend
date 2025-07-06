@@ -6,6 +6,7 @@ import {
   rejectPost,
   type Post,
 } from "@/services/postService";
+import { socket } from "@/utils/socket";
 
 type User = {
   id: number;
@@ -27,7 +28,38 @@ export default function AdminPage() {
         console.error("Greška pri dohvatanju objava:", err);
       }
     };
+
     fetchPosts();
+
+    // WebSocket setup
+    socket.connect();
+
+    socket.on("new_post_pending", (data) => {
+      console.log("Nova objava stigla preko WebSocket-a:", data);
+
+      setPendingPosts((prev) => [
+        ...prev,
+        {
+          id: data.id,
+          text: data.text,
+          image: null, // ako backend ne šalje sliku
+          created_at: data.created_at,
+          user_id: data.user_id,
+          status: "pending",
+          rejection_count: 0, // obavezno zbog tipa
+          user: {
+            id: data.user_id,
+            first_name: "Nepoznato",
+            last_name: "",
+          },
+        },
+      ]);
+    });
+
+    return () => {
+      socket.off("new_post_pending");
+      socket.disconnect();
+    };
   }, []);
 
   const renderContent = () => {
