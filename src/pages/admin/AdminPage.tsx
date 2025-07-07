@@ -42,7 +42,7 @@ export default function AdminPage() {
         {
           id: data.id,
           text: data.text,
-          image: null, // ako backend ne šalje sliku
+          image: data.image_url ?? null,// ako backend ne šalje sliku
           created_at: data.created_at,
           user_id: data.user_id,
           status: "pending",
@@ -78,12 +78,12 @@ export default function AdminPage() {
                   </p>
                   <p className="mb-2">{post.text}</p>
                   {post.image && (
-                    <img
-                      src={post.image}
-                      alt="Post slika"
-                      className="w-full rounded border mb-2"
-                    />
-                  )}
+  <img
+    src={`http://localhost:5000${post.image}`}
+    alt="Post slika"
+    className="w-[500px] h-[500px] object-cover rounded border mb-2"
+  />
+)}
                   <div className="flex gap-3">
                     <button
                       className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"

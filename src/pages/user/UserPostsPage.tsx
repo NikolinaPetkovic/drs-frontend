@@ -9,6 +9,8 @@ import {
 
 type PostStatus = "draft" | "pending" | "approved" | "rejected";
 
+const BASE_URL = "http://localhost:5000";
+
 export default function UserPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [editModal, setEditModal] = useState<Post | null>(null);
@@ -124,12 +126,12 @@ export default function UserPostsPage() {
               </div>
               <p className="text-base mb-3">{post.text}</p>
               {post.image && (
-                <img
-                  src={post.image}
-                  alt="Post slika"
-                  className="w-full rounded border mb-3"
-                />
-              )}
+  <img
+    src={`${BASE_URL}${post.image}`}
+    alt="Post slika"
+    className="w-[500px] h-[500px] object-cover rounded border mb-2"
+  />
+)}
               <div className="flex gap-4">
                 <button
                   onClick={() => handleEdit(post)}
@@ -168,16 +170,16 @@ export default function UserPostsPage() {
 
             <label className="block mb-2 text-sm">Slika (opcionalno)</label>
             {editImage && (
-              <img
-                src={
-                  editImage instanceof File
-                    ? URL.createObjectURL(editImage)
-                    : editImage
-                }
-                alt="Trenutna slika"
-                className="w-full h-auto mb-4 rounded border"
-              />
-            )}
+  <img
+    src={
+      editImage instanceof File
+        ? URL.createObjectURL(editImage)
+        : `${BASE_URL}${editImage}`
+    }
+    alt="Trenutna slika"
+    className="w-[500px] h-[500px] object-cover rounded border mb-2"
+  />
+)}
             <input
               type="file"
               accept="image/*"

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { getFriendPosts } from "@/services/postService";
 
+const BASE_URL = "http://localhost:5000";
+
 type Post = {
   id: number;
   text: string;
-  image_url?: string;
+  image: string | null | undefined;
   created_at: string;
   user?: {
     first_name: string;
@@ -50,13 +52,14 @@ export default function UserFriendsPostsPage() {
                 </p>
               </div>
               <p className="text-base mb-3">{post.text}</p>
-              {post.image_url && (
-                <img
-                  src={`http://localhost:5000${post.image_url}`}
-                  alt="Post slika"
-                  className="w-full rounded border"
-                />
-              )}
+              {post.image && (
+  <img
+    src={`${BASE_URL}${post.image}`}
+    alt="Post slika"
+    className="w-[500px] h-[500px] object-cover rounded border mb-2"
+  />
+)}
+
             </div>
           ))}
         </div>
