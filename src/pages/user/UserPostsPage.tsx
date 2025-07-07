@@ -126,12 +126,12 @@ export default function UserPostsPage() {
               </div>
               <p className="text-base mb-3">{post.text}</p>
               {post.image && (
-  <img
-    src={`${BASE_URL}${post.image}`}
-    alt="Post slika"
-    className="w-[500px] h-[500px] object-cover rounded border mb-2"
-  />
-)}
+                <img
+                  src={`${BASE_URL}${post.image}`}
+                  alt="Post slika"
+                  className="w-[500px] h-[500px] object-cover rounded border mb-2"
+                />
+              )}
               <div className="flex gap-4">
                 <button
                   onClick={() => handleEdit(post)}
@@ -156,8 +156,8 @@ export default function UserPostsPage() {
       )}
 
       {editModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-auto">
+          <div className="bg-white p-6 rounded shadow w-full max-w-lg my-10">
             <h2 className="text-xl font-bold mb-4">Izmena objave</h2>
 
             <label className="block mb-2 text-sm">Tekst</label>
@@ -170,16 +170,16 @@ export default function UserPostsPage() {
 
             <label className="block mb-2 text-sm">Slika (opcionalno)</label>
             {editImage && (
-  <img
-    src={
-      editImage instanceof File
-        ? URL.createObjectURL(editImage)
-        : `${BASE_URL}${editImage}`
-    }
-    alt="Trenutna slika"
-    className="w-[500px] h-[500px] object-cover rounded border mb-2"
-  />
-)}
+              <img
+                src={
+                  editImage instanceof File
+                    ? URL.createObjectURL(editImage)
+                    : `${BASE_URL}${editImage}`
+                }
+                alt="Trenutna slika"
+                className="max-h-64 w-auto object-contain rounded border mb-2"
+              />
+            )}
             <input
               type="file"
               accept="image/*"

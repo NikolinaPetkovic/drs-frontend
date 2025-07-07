@@ -32,12 +32,23 @@ export const getAllUsers = async (): Promise<User[]> => {
   return response.data.map((item) => item.user);
 };
 
-export const searchUsers = async (query: string): Promise<User[]> => {
-  const response = await api.get<User[]>(`/users/search?q=${query}`);
+export const searchUsers = async (query: string, userId: number): Promise<User[]> => {
+  const response = await api.get<User[]>(`/users/search?q=${query}&user_id=${userId}`);
   return response.data;
 };
+
 
 export const sendFriendRequest = async (receiverId: number): Promise<void> => {
   await api.post(`/users/friend-request/${receiverId}`);
 };
 
+export const getCurrentUser = async () => {
+  const response = await api.get("/users/me");
+  return response.data;
+};
+
+//
+export const getAvailableUsers = async (userId: number): Promise<User[]> => {
+  const response = await api.get<User[]>(`/users/available/${userId}`);
+  return response.data;
+};

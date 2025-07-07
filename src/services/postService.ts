@@ -35,14 +35,13 @@ export const createPost = async (formData: FormData) => {
   });
 };
 
-export const updatePost = async (id: number, formData: FormData) => {
-  await api.put(`/posts/${id}`, formData, {
+export const updatePost = async (id: number, data: FormData) => {
+  return await api.put(`/posts/${id}`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
 };
-
 export const getFriendPosts = async (): Promise<Post[]> => {
   const response = await api.get<Post[]>("/posts/friends");
   return response.data;

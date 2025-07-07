@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { getUserById } from "@/services/userService";
+import { getCurrentUser } from "@/services/userService";
 
 export default function AdminInfoPage() {
   const [admin, setAdmin] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      const userId = localStorage.getItem("user_id");
-      if (userId) {
-        try {
-          const data = await getUserById(userId);
-          setAdmin(data);
-        } catch (err) {
-          console.error("Greška prilikom dohvata admina:", err);
-        }
-      }
-    };
+useEffect(() => {
+  const fetchAdmin = async () => {
+    try {
+      const data = await getCurrentUser(); // koristi backend koji koristi token
+      setAdmin(data);
+    } catch (err) {
+      console.error("Greška prilikom dohvata admina:", err);
+    }
+  };
 
-    fetchAdmin();
-  }, []);
+  fetchAdmin();
+}, []);
+
 
   if (!admin) {
     return (
