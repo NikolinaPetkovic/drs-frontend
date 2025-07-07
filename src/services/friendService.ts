@@ -30,3 +30,8 @@ export const getFriends = async (): Promise<Friend[]> => {
   const response = await api.get<Friend[]>("/friendships/friends");
   return response.data;
 };
+
+// Brisanje prijatelja
+export const deleteFriend = async (friendId: number): Promise<void> => {
+  await api.delete(`/friendships/remove/${friendId}`);
+};

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { getFriends, type Friend } from "@/services/friendService";
+import {
+  getFriends,
+  deleteFriend,
+  type Friend,
+} from "@/services/friendService";
 
 export default function UserFriendsListPage() {
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -17,9 +21,13 @@ export default function UserFriendsListPage() {
     fetchFriends();
   }, []);
 
-  const handleDelete = (friendId: number) => {
-    console.log("Obriši prijatelja sa ID:", friendId);
-    setFriends((prev) => prev.filter((f) => f.id !== friendId));
+  const handleDelete = async (friendId: number) => {
+    try {
+      await deleteFriend(friendId);
+      setFriends((prev) => prev.filter((f) => f.id !== friendId));
+    } catch (error) {
+      console.error("Greška pri brisanju prijatelja:", error);
+    }
   };
 
   return (

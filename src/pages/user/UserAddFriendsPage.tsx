@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import {
-  getAllUsers,
-  searchUsers,
+  getAvailableUsers,
   sendFriendRequest,
   getBlockedUsers,
 } from "@/services/userService";
@@ -11,12 +10,13 @@ import { getToken } from "@/services/authService";
 
 export default function UserAddFriendsPage() {
   const [query, setQuery] = useState("");
+  const [originalUsers, setOriginalUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [addedFriends, setAddedFriends] = useState<number[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [blockedUserIds, setBlockedUserIds] = useState<number[]>([]);
 
-  // ⬇️ Učitaj ID ulogovanog korisnika iz JWT tokena
+  // Učitaj ID ulogovanog korisnika iz JWT tokena
   useEffect(() => {
     const fetchCurrentUser = () => {
       try {
@@ -33,14 +33,14 @@ export default function UserAddFriendsPage() {
     fetchCurrentUser();
   }, []);
 
-  // ⬇️ Učitaj sve korisnike i blokirane korisnike (tek kada znamo currentUserId)
+  // Učitaj dostupne korisnike + blokirane korisnike
   useEffect(() => {
     if (currentUserId === null) return;
 
     const fetchUsers = async () => {
       try {
         const [users, blocked] = await Promise.all([
-          getAllUsers(),
+          getAvailableUsers(currentUserId),
           getBlockedUsers(),
         ]);
 
@@ -48,13 +48,11 @@ export default function UserAddFriendsPage() {
         setBlockedUserIds(blockedIds);
 
         const visibleUsers = users.filter(
-          (user) =>
-            user.role !== "admin" &&
-            user.id !== currentUserId &&
-            !blockedIds.includes(user.id)
+          (user) => !blockedIds.includes(user.id)
         );
 
-        setFilteredUsers(visibleUsers);
+        setOriginalUsers(visibleUsers);
+        setFilteredUsers(visibleUsers); // inicijalni prikaz
       } catch (error) {
         console.error("Greška pri dohvatanju korisnika:", error);
       }
@@ -63,29 +61,32 @@ export default function UserAddFriendsPage() {
     fetchUsers();
   }, [currentUserId]);
 
-  // ⬇️ Pretraga korisnika
-  const handleSearch = async () => {
-    if (currentUserId === null) return;
+  // Pretraga lokalno po imenu, prezimenu, username, email, adresi, gradu
+  const handleSearch = () => {
+    const q = query.trim().toLowerCase();
 
-    try {
-      const users = query.trim()
-        ? await searchUsers(query)
-        : await getAllUsers();
-
-      const visible = users.filter(
-        (user) =>
-          user.role !== "admin" &&
-          user.id !== currentUserId &&
-          !blockedUserIds.includes(user.id)
-      );
-
-      setFilteredUsers(visible);
-    } catch (error) {
-      console.error("Greška pri pretrazi:", error);
+    if (!q) {
+      setFilteredUsers(originalUsers);
+      return;
     }
+
+    const filtered = originalUsers.filter((user) =>
+      [
+        user.first_name,
+        user.last_name,
+        user.username,
+        user.email,
+        user.address,
+        user.city,
+      ]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(q))
+    );
+
+    setFilteredUsers(filtered);
   };
 
-  // ⬇️ Slanje friend request-a
+  // Slanje zahteva za prijateljstvo
   const handleAddFriend = async (id: number) => {
     try {
       await sendFriendRequest(id);
