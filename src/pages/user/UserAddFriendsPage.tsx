@@ -15,7 +15,7 @@ export default function UserAddFriendsPage() {
   const [addedFriends, setAddedFriends] = useState<number[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   //const [blockedUserIds, setBlockedUserIds] = useState<number[]>([]);
-
+//promena
   // Učitaj ID ulogovanog korisnika iz JWT tokena
   useEffect(() => {
     const fetchCurrentUser = () => {
