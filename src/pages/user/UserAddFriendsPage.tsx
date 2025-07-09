@@ -14,7 +14,7 @@ export default function UserAddFriendsPage() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [addedFriends, setAddedFriends] = useState<number[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [blockedUserIds, setBlockedUserIds] = useState<number[]>([]);
+  //const [blockedUserIds, setBlockedUserIds] = useState<number[]>([]);
 
   // Učitaj ID ulogovanog korisnika iz JWT tokena
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function UserAddFriendsPage() {
         ]);
 
         const blockedIds = blocked.map((user) => user.id);
-        setBlockedUserIds(blockedIds);
+        //setBlockedUserIds(blockedIds);
 
         const visibleUsers = users.filter(
           (user) => !blockedIds.includes(user.id)
